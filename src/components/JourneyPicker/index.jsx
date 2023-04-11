@@ -6,7 +6,7 @@ export const JourneyPicker = ({ onJourneyChange }) => {
   const [fromCity, setFromCity] = useState("");
   const [toCity, setToCity] = useState("");
   const [dates, setDates] = useState([]);
-  const [date, setDate] = useState([]);
+  const [date, setDate] = useState("");
   const [cities, setCities] = useState([]);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export const JourneyPicker = ({ onJourneyChange }) => {
       <>
         <option value="">Vyberte</option>
         {cities.map((city) => (
-          <option value={city.name} key={city.code}>
+          <option value={city.code} key={city.code}>
             {city.name}
           </option>
         ))}
@@ -46,9 +46,11 @@ export const JourneyPicker = ({ onJourneyChange }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(fromCity);
-    console.log(toCity);
-    console.log(date);
+    fetch(
+      `https://apps.kodim.cz/daweb/leviexpress/api/journey?fromCity=${fromCity}&toCity=${toCity}&date=${date}`
+    )
+      .then((response) => response.json())
+      .then((data) => onJourneyChange(data.results));
   };
 
   return (
@@ -74,13 +76,19 @@ export const JourneyPicker = ({ onJourneyChange }) => {
           <label>
             <div className="journey-picker__label">Datum:</div>
             <select value={date} onChange={(e) => setDate(e.target.value)}>
-              <DatesOptions dates={dates}/>
+              <DatesOptions dates={dates} />
             </select>
           </label>
           <div className="journey-picker__controls">
-            <button className="btn" type="submit">
-              Vyhledat spoj
-            </button>
+            {fromCity === "" || toCity === "" || date === "" ? (
+              <button className="btn" type="submit" disabled={true}>
+                Vyhledat spoj
+              </button>
+            ) : (
+              <button className="btn" type="submit" disabled={false}>
+                Vyhledat spoj
+              </button>
+            )}
           </div>
         </form>
         <img className="journey-picker__map" src={mapImage} />
